@@ -21,8 +21,8 @@ use bytes::BytesMut;
 use crossbeam::queue::ArrayQueue;
 use human_repr::HumanCount;
 use once_cell::sync::OnceCell;
-use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::Arc;
 use tracing::{info, trace, warn};
 
 /// Global memory pool instance. Use `memory_pool()` to access it.
@@ -210,8 +210,6 @@ impl MemoryPool {
                         "Pool is at capacity. Allocating outside the pool: requested {} B, current usage {} B, limit {} B",
                         capacity, current, self.memory_limit
                     );
-                    self.inc_external_allocations();
-                    return BytesMut::with_capacity(capacity);
                 }
 
                 self.inc_external_allocations();
@@ -235,7 +233,8 @@ impl MemoryPool {
             self.inc_resize_events();
             trace!(
                 "Buffer capacity {} != original {} when returning",
-                current_capacity, original_capacity
+                current_capacity,
+                original_capacity
             );
         }
 
